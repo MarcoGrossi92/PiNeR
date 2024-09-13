@@ -2,6 +2,7 @@
 
 import configparser
 import json
+import numpy as np
 
 # Function : check section presence -----------------------------------
 def check_section(file_path, section):
@@ -47,30 +48,39 @@ def get(file_path, section, option, as_type=str):
     config = configparser.ConfigParser()
     config.read(file_path)
 
-    if section not in config:
+    # Check if section exists
+    if not config.has_section(section):
         return None
 
-    if option not in config[section]:
+    # Check if option exists
+    if not config.has_option(section, option):
         return None
 
-    raw = config[section][option]
-    
+    raw = config.get(section, option)
+
     # Use the `as_type` argument to specify the desired data type
-    if as_type == int:
-        value = int(raw)
-    elif as_type == float:
-        value = float(raw)
-    elif as_type == bool:
-        # Convert common boolean representations to actual boolean values
-        value = raw in ('true', 'yes', '1', 'on', 'T', 'True')
-    elif as_type == list:
-        # Check if input is a list of floats
-        value = [float(x) for x in raw.split(' ')]
-    else:
-        value = raw
-    
+    try:
+        if as_type == int:
+            value = int(raw)
+        elif as_type == float:
+            value = float(raw)
+        elif as_type == bool:
+            # Convert common boolean representations to actual boolean values
+            value = raw.lower() in ('true', 'yes', '1', 'on', 't')
+        elif as_type == list:
+            # Handle space-separated list of strings
+            value = raw.split()
+        elif as_type == np.ndarray:
+            # Handle space-separated list of floats and return as NumPy array of floats
+            value = np.array([float(x) for x in raw.split()])
+        else:
+            value = raw
+    except ValueError:
+        # Handle type conversion error
+        return None
+
     return value
-    
+
 
 # Function : get INI option -----------------------------------
 

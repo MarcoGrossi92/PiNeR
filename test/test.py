@@ -1,14 +1,15 @@
 from PiNeR import get
+import numpy as np
 
 ini_file = 'file.ini'
 
-opt = get(ini_file, 'section1', 'numb', float)
-if opt:
+opt = get(ini_file, 'section1', 'numb', as_type=np.ndarray)
+if opt is not None:
     print(opt)
 
-opt = get(ini_file, 'section1', 'char', str)
+opt = get(ini_file, 'section1', 'char', list)
 if opt:
-    print(opt)
+    print(opt[1])
 
 opt = get(ini_file, 'section1', 'bool', bool)
 if opt:
